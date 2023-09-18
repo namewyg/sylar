@@ -43,7 +43,54 @@ void Logger::fatal(LogEvent::ptr event) {
     log(LogLevel::FATAL, event);
 }
 
+// ----------------------------------------------------------------
+// Appender的具体实现
+// ----------------------------------------------------------------
+FileLogAppender::FileLogAppender(const std::string& filename) : m_filename(filename) {
+}
+void FileLogAppender::log(LogLevel level, LogEvent::ptr event) {
+    if (level >= m_level) {
+        m_filestream << m_formatter.format(event);
+    }
+}
 
+void FileLogAppender::reopen(LogLevel level, LogEvent::ptr event) {
+    if (m_filestream.isOpen()) {
+        m_filestream.close();
+    }
+    m_filestream.open(m_filename);
+}
 
+void StdoutLogAppender::log(LogLevel level, LogEvent::ptr event) {
+    if (level >= m_level) {
+        std::cout << m_formatter.format(event);
+    }
+}
+
+// ----------------------------------------------------------------
+// Formatter的具体实现
+// ----------------------------------------------------------------
+LogFormatter::LogFormatter(const std::string& pattern) : m_pattern(pattern) {
+}
+
+std::string LogFormatter::format(LogEvent::ptr event) {
+    std::stringstream ss;
+    for (auto& i : m_items) {
+        i->format(ss, event);
+    }
+    return ss.str();
+}
+
+void LogFormatter::init() {
+    std::vector<std::pair<std::string, int>> vec;
+    size_t last_pos = 0;
+    for (size_t i = 0; i < m_pattern.size(); ++i) {
+        if (m_pattern[i] == '%') {
+            if (/* condition */) {
+                /* code */
+            }
+        }
+    }
+}
 
 } // namespace sylar
